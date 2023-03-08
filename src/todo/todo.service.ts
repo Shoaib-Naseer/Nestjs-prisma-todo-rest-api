@@ -153,6 +153,34 @@ async findAllTodosUser(userId:number,res:Response) :Promise<Todos[] | string>{
       return error  
     }
   }
+
+
+  //Mark a todo to complete based on todo id
+  async markComplete(id: number,res:Response):Promise<Todos | string> {
+    try {
+      const todo = await this.prisma.todos.findUnique({where :{id}})
+      if(todo){
+       const todo = await this.prisma.todos.update({where:{
+          id    
+        },
+      data:{
+        
+        completed:true
+      }});
+        return todo
+      }else{
+        res.status(404)
+        return ("Todo doesnt Exist ")
+      }
+      
+    } catch (error) {
+      if (error.code=='P2025') {
+        res.status(404)
+        return ("Todo doesnt Exist ")
+      }
+      return error  
+    }
+  }
   //Delete a Todo based on only its id
   async remove(id: number, res:Response) :Promise<string>{
     try {

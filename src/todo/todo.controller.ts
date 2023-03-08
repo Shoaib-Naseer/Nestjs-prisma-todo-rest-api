@@ -12,7 +12,7 @@ import { Todos } from '@prisma/client';
 // Find All Todos based on User id 
 // Delete Todo based on Todo ID
 // Update Todo Based on Todo Id
-
+// Mark todo Completed Based on Todo Id
 
 
 @Controller('todo')
@@ -53,6 +53,11 @@ export class TodoController {
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateTodoDto: UpdateTodoDto,@Res({passthrough: true}) res: Response) {
     return this.todoService.update(+id, updateTodoDto,res);
+  }
+  //Mark to do completed based on todo id
+  @Patch('markcomplete/:id')
+  markComplete(@Param('id') id: string,@Res({passthrough: true}) res: Response) {
+    return this.todoService.markComplete(+id,res);
   }
 
   @Delete(':id')
