@@ -161,7 +161,7 @@ async findAllTodosUser(userId:number,res:Response) :Promise<Todos[] | string>{
       const todo = await this.prisma.todos.findUnique({where :{id}})
       if(todo){
        const todo = await this.prisma.todos.update({where:{
-          id    
+          id
         },
       data:{
         

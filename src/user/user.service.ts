@@ -31,6 +31,7 @@ export class UserService {
     }
   }
 
+ 
   async findAll():Promise<User[]> {
     return this.prisma.user.findMany();
   }
@@ -47,13 +48,17 @@ export class UserService {
     }
   }
 
-  async findById(id:number) :Promise<User|null>{
+  async findById(id:number) :Promise<User|any>{
     
-      return this.prisma.user.findUniqueOrThrow({
-        where:{
-          id
-        }
-      });
+      try{
+        return this.prisma.user.findUnique({
+          where:{
+            id
+          }
+        });
+      }catch(err){
+        return err
+      }
   }
 
   async update(id: number, updateUserDto: UpdateUserDto):Promise<User |null> {

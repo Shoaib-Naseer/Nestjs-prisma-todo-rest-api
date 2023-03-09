@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, UseGuards, Req } from '@nestjs/common';
 import { TodoService } from './todo.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
 import { Response } from 'express';
 import { Todos } from '@prisma/client';
+import { JwtGuard, RoleGuard } from 'src/auth/guard';
 
 // Add Todos Based on User Id
 // Find All Todos based on User id which are not completed
@@ -19,49 +20,62 @@ import { Todos } from '@prisma/client';
 export class TodoController {
   constructor(private readonly todoService: TodoService) {}
 
-  @Post(':userId')
+  @Post('')
   create(@Body() createTodoDto: CreateTodoDto , @Param('userId') userId:number, @Res({passthrough: true}) res: Response) {
     return this.todoService.create(createTodoDto,+userId,res);
   }
 
+  //This is admin Route
+
+  @UseGuards(new RoleGuard('ADMIN'))
   @Get('all')
-  findAll():Promise<Todos[]>{
+  findAll(@Req() req):Promise<Todos[]>{
+    console.log(req.user)
     return this.todoService.findAllTodos()
   }
-  @Get('all/:userId')
-  findAllByUser(@Param('userId') userId:string , @Res({passthrough: true}) res: Response) :Promise<Todos[]| string>{
+  @Get('all-user-todos')
+  findAllByUser( @Res({passthrough: true}) res: Response,@Req() req) :Promise<Todos[]| string>{
+    const userId : number = Number(req.user.id);
+    console.log(userId)
     return this.todoService.findAllTodosUser(+userId,res)
   }
 
 
-  @Get('uncompleted/:userId')
-  findAllUncompleted(@Param('userId') userId:string, @Res({passthrough: true}) res: Response) :Promise<Todos |string>{
+  @Get('uncompleted')
+  findAllUncompleted( @Res({passthrough: true}) res: Response,@Req() req) :Promise<Todos |string>{
+    const userId : number = Number(req.user.id);
     return this.todoService.findAllUncompletedTodos(+userId,res);
   }
 
 
-  @Get('completed/:userId')
-  findAllcompleted(@Param('userId') userId:string, @Res({passthrough: true}) res: Response) :Promise<Todos |string>{
+  @Get('completed')
+  findAllcompleted(@Res({passthrough: true}) res: Response,@Req() req) :Promise<Todos |string>{
+    const userId : number = Number(req.user.id);
     return this.todoService.findAllCompletedTodos(+userId,res);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string,@Res({passthrough: true}) res: Response) {
+  findOne(@Param('id') id: string,@Res({passthrough: true}) res: Response,@Req() req) {
+    const userId : number = Number(req.user.id);
     return this.todoService.findOne(+id,res);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTodoDto: UpdateTodoDto,@Res({passthrough: true}) res: Response) {
+  update(@Param('id') id: string, @Body() updateTodoDto: UpdateTodoDto,@Res({passthrough: true}) res: Response,@Req() req) {
+    const userId : number = Number(req.user.id);
     return this.todoService.update(+id, updateTodoDto,res);
   }
-  //Mark to do completed based on todo id
+  // Mark to do completed based on todo id
   @Patch('markcomplete/:id')
-  markComplete(@Param('id') id: string,@Res({passthrough: true}) res: Response) {
+  markComplete(@Param('id') id: string,@Res({passthrough: true}) res: Response,@Req() req) {
+    const userId : number = Number(req.user.id);
     return this.todoService.markComplete(+id,res);
   }
 
+  // Delete todo based on todo-id
   @Delete(':id')
-  remove(@Param('id') id: string,@Res({passthrough: true}) res: Response) {
+  remove(@Param('id') id: string,@Res({passthrough: true}) res: Response,@Req() req) {
+    const userId : number = Number(req.user.id);
     return this.todoService.remove(+id,res);
   }
 }
