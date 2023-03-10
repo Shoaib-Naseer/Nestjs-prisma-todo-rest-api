@@ -109,13 +109,17 @@ async findAllTodosUser(userId:number,res:Response) :Promise<Todos[] | string>{
 }
 
   //return single Todo details based on its id
-  async findOne(id: number,res:Response):Promise<Todos |string> {
+  async findOne(id: number,res:Response,userId:number):Promise<Todos |string> {
     try {
-      const todo = await this.prisma.todos.findUnique({
+      const todo = await this.prisma.todos.findFirst({
         where:{
-          id
+          id,
+          userId
         }
       });
+      if(!todo ){
+        return ("Todo doesnt Exist Please try again later")
+      }
       return todo
     } catch (error) {
         if (error.code=='P2025') {
@@ -128,12 +132,12 @@ async findAllTodosUser(userId:number,res:Response) :Promise<Todos[] | string>{
   }
 
   //update single Todo details based on its id
-  async update(id: number, updateTodoDto: UpdateTodoDto,res:Response):Promise<Todos | string> {
+  async update(id: number, updateTodoDto: UpdateTodoDto,res:Response,userId:number):Promise<Todos | string> {
     try {
-      const todo = await this.prisma.todos.findUnique({where :{id}})
+      const todo = await this.prisma.todos.findFirst({where :{id,userId}})
       if(todo){
        const todo = await this.prisma.todos.update({where:{
-          id    
+          id
         },
       data:{
         title:updateTodoDto.title,
@@ -156,9 +160,9 @@ async findAllTodosUser(userId:number,res:Response) :Promise<Todos[] | string>{
 
 
   //Mark a todo to complete based on todo id
-  async markComplete(id: number,res:Response):Promise<Todos | string> {
+  async markComplete(id: number,res:Response,userId:number):Promise<Todos | string> {
     try {
-      const todo = await this.prisma.todos.findUnique({where :{id}})
+      const todo = await this.prisma.todos.findFirst({where :{id,userId}})
       if(todo){
        const todo = await this.prisma.todos.update({where:{
           id
@@ -182,9 +186,9 @@ async findAllTodosUser(userId:number,res:Response) :Promise<Todos[] | string>{
     }
   }
   //Delete a Todo based on only its id
-  async remove(id: number, res:Response) :Promise<string>{
+  async remove(id: number, res:Response,userId:number) :Promise<string>{
     try {
-      const todo = await this.prisma.todos.findUnique({where :{id}})
+      const todo = await this.prisma.todos.findFirst({where :{id,userId}})
       if(todo){
         await this.prisma.todos.delete({where:{
           id

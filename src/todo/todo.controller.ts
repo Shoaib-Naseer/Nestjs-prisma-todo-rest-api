@@ -21,7 +21,8 @@ export class TodoController {
   constructor(private readonly todoService: TodoService) {}
 
   @Post('')
-  create(@Body() createTodoDto: CreateTodoDto , @Param('userId') userId:number, @Res({passthrough: true}) res: Response) {
+  create(@Body() createTodoDto: CreateTodoDto , @Req() req:any, @Res({passthrough: true}) res: Response) {
+    const userId = req.user.id
     return this.todoService.create(createTodoDto,+userId,res);
   }
 
@@ -33,6 +34,8 @@ export class TodoController {
     console.log(req.user)
     return this.todoService.findAllTodos()
   }
+
+
   @Get('all-user-todos')
   findAllByUser( @Res({passthrough: true}) res: Response,@Req() req) :Promise<Todos[]| string>{
     const userId : number = Number(req.user.id);
@@ -57,25 +60,25 @@ export class TodoController {
   @Get(':id')
   findOne(@Param('id') id: string,@Res({passthrough: true}) res: Response,@Req() req) {
     const userId : number = Number(req.user.id);
-    return this.todoService.findOne(+id,res);
+    return this.todoService.findOne(+id,res,userId);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateTodoDto: UpdateTodoDto,@Res({passthrough: true}) res: Response,@Req() req) {
     const userId : number = Number(req.user.id);
-    return this.todoService.update(+id, updateTodoDto,res);
+    return this.todoService.update(+id, updateTodoDto,res,userId);
   }
   // Mark to do completed based on todo id
   @Patch('markcomplete/:id')
   markComplete(@Param('id') id: string,@Res({passthrough: true}) res: Response,@Req() req) {
     const userId : number = Number(req.user.id);
-    return this.todoService.markComplete(+id,res);
+    return this.todoService.markComplete(+id,res,userId);
   }
 
   // Delete todo based on todo-id
   @Delete(':id')
   remove(@Param('id') id: string,@Res({passthrough: true}) res: Response,@Req() req) {
     const userId : number = Number(req.user.id);
-    return this.todoService.remove(+id,res);
+    return this.todoService.remove(+id,res,userId);
   }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from '@prisma/client';
 import { Request } from 'express';
@@ -9,6 +9,7 @@ import { LoginDto } from './dto/login.dto';
 export class AuthController {
     constructor(private authService:AuthService){}
 
+  @HttpCode(200)  
   @Post('/login')
   @UseGuards(AuthGuard('local'))
   login(@Req() req,@Body() loginDto:LoginDto){
